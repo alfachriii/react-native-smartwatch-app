@@ -1,14 +1,27 @@
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import ThemedTile from '@/components/themedTile';
+import useBLE from '@/hooks/useBle';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Switch } from 'react-native-paper';
 
 
 const BluetoothDevice = () => {
+  const { connectedDevice, allDevices, isBluetoothOn, stopScanPeripherals, scanForPeripherals, requestPermissions } = useBLE();
+
   const [bluetoothEnable, setBluetoothEnable] = useState(false);
+
+  const scanToggle = async () => {
+    if(!isBluetoothOn) {
+      await requestPermissions();
+      scanForPeripherals();
+      return;
+    }
+
+    stopScanPeripherals();
+  }
 
   return (
     <ThemedView style={styles.container}>
@@ -22,12 +35,11 @@ const BluetoothDevice = () => {
       }}>
         <ThemedText>Bluetooth</ThemedText>
         <Switch 
-        value={bluetoothEnable}
-        onValueChange={() => {
-          setBluetoothEnable(!bluetoothEnable)
-        }}
+        value={isBluetoothOn}
+        onValueChange={scanToggle}
         style={{ transform: [{ scaleX: 1.5 }, { scaleY: 1.5 }] }}
         color='#1077d8ff'
+
         />
       </View>
       <View style={styles.deviceContainer}>

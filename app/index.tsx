@@ -10,10 +10,13 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Link } from 'expo-router';
 import { useState } from 'react';
 import { Image, ScrollView, StyleSheet, useColorScheme, View } from 'react-native';
+import useBLE from '../hooks/useBle'
 
 const getColor = (colorScheme: any) => colorScheme === "dark" ? "white" : "black"
 
 export default function Home() {
+  const { connectedDevice, allDevices, scanForPeripherals, connectToDevice } = useBLE();
+
   const colorScheme = useColorScheme();
   const color = getColor(colorScheme);
 
