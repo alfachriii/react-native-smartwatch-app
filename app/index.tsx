@@ -15,7 +15,6 @@ import useBLE from '../hooks/useBle'
 const getColor = (colorScheme: any) => colorScheme === "dark" ? "white" : "black"
 
 export default function Home() {
-  const { connectedDevice, allDevices, scanForPeripherals, connectToDevice } = useBLE();
 
   const colorScheme = useColorScheme();
   const color = getColor(colorScheme);
