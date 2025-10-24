@@ -24,18 +24,30 @@ type DeviceListItemProps = {
 
 const DeviceListItem: FC<DeviceListItemProps> = (props) => {
   const { item, connectToPeripheral, closeModal } = props;
+  const connectedDevice = useBLEStore((s) => s.connectedDevice)
 
   const connectAndClose = useCallback(() => {
     connectToPeripheral(item.item);
     console.log("connect to:", item.item)
   }, [closeModal, connectToPeripheral, item.item]);
 
+  const getStatus = () => {
+    if (!connectedDevice) {
+      return ""
+    }
+
+    if (connectedDevice.id === item.item.id) {
+      return "Connected"
+    }
+  }
+
   return (
     <ThemedTile onPress={connectAndClose} style={styles.deviceItem}>
         <View style={{ width: "90%" }}>
-          <ThemedText type="defaultSemiBold" style={styles.deviceName}>
+          <ThemedText type="default" style={styles.deviceName}>
             {item.item.name || "unknown"}
-          </ThemedText>
+        </ThemedText>
+        <ThemedText type="small" style={{ opacity: 0.7}}>{getStatus()}</ThemedText>
         </View>
         <View style={{ width: "10%", justifyContent: "center" }}>
           <View
