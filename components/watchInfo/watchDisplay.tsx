@@ -4,14 +4,15 @@ import React from 'react';
 import { StyleSheet, View, ViewProps } from 'react-native';
 import { ThemedText } from '../themed-text';
 import { ThemedView } from '../themed-view';
+import { Device } from 'react-native-ble-plx';
 
 export type WatchDisplayProps = ViewProps & {
-  isConnected?: boolean;
+  connectedDevice?: Device | null;
 };
 
-const WatchDisplay = ({ isConnected }: WatchDisplayProps) => {
+const WatchDisplay = ({ connectedDevice }: WatchDisplayProps) => {
   return (
-    (isConnected === true) ? (
+    (connectedDevice) ? (
         <ThemedView style={styles.container}>
             <View>
                 <ThemedText type='defaultSemiBold' style={{ opacity: 0.8}}>Saturday 28</ThemedText>

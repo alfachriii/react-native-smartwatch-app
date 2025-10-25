@@ -1,20 +1,14 @@
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import ThemedTile from "@/components/themedTile";
-import useBLE from "@/hooks/useBle";
+import {useBLE} from "@/hooks/useBle";
 import { useBLEStore } from "@/store/useBLEStore";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import React, { FC, useCallback, useEffect } from "react";
-import {
-  ListRenderItemInfo,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-  FlatList,
-  ScrollView
-} from "react-native";
+import { FlatList, ListRenderItemInfo, StyleSheet, View } from "react-native";
 import { Device } from "react-native-ble-plx";
 import { Switch } from "react-native-paper";
+import { shallow } from "zustand/shallow";
 
 type DeviceListItemProps = {
   item: ListRenderItemInfo<Device>;
@@ -24,43 +18,35 @@ type DeviceListItemProps = {
 
 const DeviceListItem: FC<DeviceListItemProps> = (props) => {
   const { item, connectToPeripheral, closeModal } = props;
-  const connectedDevice = useBLEStore((s) => s.connectedDevice)
+  const connectedDevice = useBLEStore((s) => s.connectedDevice);
 
   const connectAndClose = useCallback(() => {
+    console.log("try connect to device")
     connectToPeripheral(item.item);
-    console.log("connect to:", item.item)
   }, [closeModal, connectToPeripheral, item.item]);
-
-  const getStatus = () => {
-    if (!connectedDevice) {
-      return ""
-    }
-
-    if (connectedDevice.id === item.item.id) {
-      return "Connected"
-    }
-  }
 
   return (
     <ThemedTile onPress={connectAndClose} style={styles.deviceItem}>
-        <View style={{ width: "90%" }}>
-          <ThemedText type="default" style={styles.deviceName}>
-            {item.item.name || "unknown"}
+      <View style={{ width: "90%" }}>
+        <ThemedText type="default" style={styles.deviceName}>
+          {item.item.name || "unknown"}
         </ThemedText>
-        <ThemedText type="small" style={{ opacity: 0.7}}>{getStatus()}</ThemedText>
+        <ThemedText type="small" style={{ opacity: 0.7 }}>
+          {connectedDevice?.id === item.item.id ? "Connected" : "Not Connected"}
+        </ThemedText>
+      </View>
+      <View style={{ width: "10%", justifyContent: "center" }}>
+        <View
+          style={{
+            backgroundColor: "#555555ff",
+            padding: 13,
+            paddingLeft: 16,
+            borderRadius: 90,
+          }}
+        >
+          <FontAwesome6 name="angle-right" size={15} color="#c2c2c2ff" />
         </View>
-        <View style={{ width: "10%", justifyContent: "center" }}>
-          <View
-            style={{
-              backgroundColor: "#555555ff",
-              padding: 13,
-              paddingLeft: 16,
-              borderRadius: 90,
-            }}
-          >
-            <FontAwesome6 name="angle-right" size={15} color="#c2c2c2ff" />
-          </View>
-        </View>
+      </View>
     </ThemedTile>
   );
 };
@@ -68,28 +54,37 @@ const DeviceListItem: FC<DeviceListItemProps> = (props) => {
 const BluetoothDevice = () => {
   const {
     enableBluetooth,
+    disableBluetooth,
     connectToDevice,
-    stopScanPeripherals,
     scanForPeripherals,
+    stopScanPeripherals,
     requestPermissions,
   } = useBLE();
 
-  const isBluetoothOn = useBLEStore((s) => s.isBluetoothOn)
-  const allDevices = useBLEStore((s) => s.allDevices)
-  const connectedDevice = useBLEStore((s) => s.connectedDevice)
+  const isBluetoothOn = useBLEStore((s) => s.isBluetoothOn);
+  const isScanOn = useBLEStore((s) => s.isScanOn);
+  const allDevices = useBLEStore((s) => s.allDevices);
 
-  const scanToggle = async () => {
+  const bluetoothToggle = async () => {
     const isPermissionsEnabled = await requestPermissions();
     if (!isPermissionsEnabled) return;
 
     if (!isBluetoothOn) {
-      await enableBluetooth()
-      scanForPeripherals();
+      await enableBluetooth();
       return;
     }
 
-    stopScanPeripherals();
+    await disableBluetooth();
   };
+
+  const scanToggle = async () => {
+    if (!isScanOn) {
+      scanForPeripherals();
+      return
+    }
+
+    stopScanPeripherals();
+  }
 
   const closeModal = () => {};
 
@@ -103,10 +98,12 @@ const BluetoothDevice = () => {
         />
       );
     },
-    []
+    [connectToDevice]
   );
 
-  useEffect(() => { console.log("Connected Devices:", connectedDevice)}, [connectedDevice])
+  useEffect(() => {
+    console.log(allDevices)
+  }, [allDevices])
 
   return (
     <ThemedView style={styles.container}>
@@ -115,18 +112,27 @@ const BluetoothDevice = () => {
           paddingVertical: 20,
           flexDirection: "row",
           justifyContent: "space-between",
-          borderBottomWidth: 1,
-          borderColor: "#2c2c2c88",
-          // backgroundColor: "brown",
         }}
       >
         <ThemedText>Bluetooth</ThemedText>
         <Switch
           value={isBluetoothOn}
-          onValueChange={scanToggle}
+          onValueChange={bluetoothToggle}
           style={{ transform: [{ scaleX: 1.5 }, { scaleY: 1.5 }] }}
           color="#1077d8ff"
         />
+      </View>
+      <View
+        style={{
+          width: "100%",
+          borderBottomColor: "#2c2c2c88",
+          borderBottomWidth: 1.5,
+          paddingBottom: 20,
+        }}
+      >
+        <ThemedTile style={styles.scanButton} onPress={scanToggle}>
+          <ThemedText>{isScanOn ? "Start Scanning Devices..." : "Scan Devices"}</ThemedText>
+        </ThemedTile>
       </View>
       <FlatList
         contentContainerStyle={styles.deviceContainer}
@@ -146,6 +152,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 25,
+    gap: 10,
   },
   deviceContainer: {
     flex: 1,
@@ -159,6 +166,10 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     flexDirection: "row",
     // backgroundColor: "brown"
+  },
+  scanButton: {
+    width: "100%",
+    padding: 15,
   },
   deviceName: {},
   deviceStatus: {},

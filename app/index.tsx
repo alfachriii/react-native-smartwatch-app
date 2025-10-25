@@ -11,15 +11,19 @@ import { Link } from 'expo-router';
 import { useState } from 'react';
 import { Image, ScrollView, StyleSheet, useColorScheme, View } from 'react-native';
 import useBLE from '../hooks/useBle'
+import { useBLEStore } from '@/store/useBLEStore';
 
 const getColor = (colorScheme: any) => colorScheme === "dark" ? "white" : "black"
 
 export default function Home() {
-
   const colorScheme = useColorScheme();
   const color = getColor(colorScheme);
+  const connectedDevice = useBLEStore((s) => s.connectedDevice);
 
-  const [isBluetoothConnected, setBluetoothConnected] = useState(true);
+  const getDeviceName = () => {
+    if (!connectedDevice?.name) return "unknown"
+    return connectedDevice.name
+  }
 
   return (
     <ThemedView style={styles.container}>
@@ -28,12 +32,12 @@ export default function Home() {
           <Image source={profilePicture} style={styles.profilePic}></Image>
         </View>
         <Link href="/bluetoothDevice">
-          <ThemedText type="title" >{(isBluetoothConnected) ? "alfachri's watch" : "Please Connect to device"}</ThemedText>
+          <ThemedText type="title" >{(connectedDevice) ? getDeviceName() : "Please Connect to device"}</ThemedText>
         </Link>
       </View>
       <ThemedView style={styles.infoBox}>
         <Link href="/bluetoothDevice">
-          <WatchDisplay isConnected={isBluetoothConnected} />
+          <WatchDisplay connectedDevice={connectedDevice} />
         </Link>
         <WatchIndicator />
         <View style={styles.tilesContainer}>

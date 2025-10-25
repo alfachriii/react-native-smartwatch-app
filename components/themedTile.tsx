@@ -12,6 +12,7 @@ const ThemedTile: React.FC<ThemedTileProps> = ({
   style,
   lightColor,
   darkColor,
+  children,
   ...otherProps
 }) => {
   const color = useThemeColor(
@@ -22,8 +23,9 @@ const ThemedTile: React.FC<ThemedTileProps> = ({
   return (
     <TouchableOpacity
       style={[{ backgroundColor: color, borderRadius: 15 }, style]}
-      {...otherProps}
-    />
+      {...otherProps}>
+      {children}
+      </TouchableOpacity>
   );
 };
 
