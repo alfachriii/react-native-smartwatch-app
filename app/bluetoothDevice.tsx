@@ -7,7 +7,7 @@ import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import React, { FC, useCallback, useEffect } from "react";
 import { FlatList, ListRenderItemInfo, StyleSheet, View } from "react-native";
 import { Device } from "react-native-ble-plx";
-import { Switch } from "react-native-paper";
+import { ActivityIndicator, Switch } from "react-native-paper";
 import { shallow } from "zustand/shallow";
 
 type DeviceListItemProps = {
@@ -26,7 +26,10 @@ const DeviceListItem: FC<DeviceListItemProps> = (props) => {
   }, [closeModal, connectToPeripheral, item.item]);
 
   return (
-    <ThemedTile onPress={connectAndClose} style={styles.deviceItem}>
+    <ThemedTile
+      onPress={connectAndClose}
+      style={[styles.deviceItem, connectedDevice?.id === item.item.id && styles.active]}
+    >
       <View style={{ width: "90%" }}>
         <ThemedText type="default" style={styles.deviceName}>
           {item.item.name || "unknown"}
@@ -37,12 +40,12 @@ const DeviceListItem: FC<DeviceListItemProps> = (props) => {
       </View>
       <View style={{ width: "10%", justifyContent: "center" }}>
         <View
-          style={{
+          style={[{
             backgroundColor: "#555555ff",
             padding: 13,
             paddingLeft: 16,
             borderRadius: 90,
-          }}
+          }, connectedDevice?.id === item.item.id && styles.active]}
         >
           <FontAwesome6 name="angle-right" size={15} color="#c2c2c2ff" />
         </View>
@@ -53,6 +56,7 @@ const DeviceListItem: FC<DeviceListItemProps> = (props) => {
 
 const BluetoothDevice = () => {
   const {
+    getBluetoothStatus,
     enableBluetooth,
     disableBluetooth,
     connectToDevice,
@@ -102,8 +106,8 @@ const BluetoothDevice = () => {
   );
 
   useEffect(() => {
-    console.log(allDevices)
-  }, [allDevices])
+    getBluetoothStatus()
+  }, [])
 
   return (
     <ThemedView style={styles.container}>
@@ -130,8 +134,9 @@ const BluetoothDevice = () => {
           paddingBottom: 20,
         }}
       >
-        <ThemedTile style={styles.scanButton} onPress={scanToggle}>
-          <ThemedText>{isScanOn ? "Start Scanning Devices..." : "Scan Devices"}</ThemedText>
+        <ThemedTile style={[styles.scanButton, isScanOn && styles.active]} onPress={scanToggle}>
+          <ThemedText>{isScanOn ? "Stop Scanning" : "Start Scan Devices"}</ThemedText>
+          {isScanOn && <ActivityIndicator animating={true} />}
         </ThemedTile>
       </View>
       <FlatList
@@ -169,7 +174,12 @@ const styles = StyleSheet.create({
   },
   scanButton: {
     width: "100%",
+    flexDirection: "row",
+    justifyContent: "space-between",
     padding: 15,
+  },
+  active: {
+    backgroundColor: "#1077d885"
   },
   deviceName: {},
   deviceStatus: {},

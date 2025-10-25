@@ -1,11 +1,19 @@
 import { useThemeColor } from '@/hooks/use-theme-color';
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View, TouchableOpacityProps, ViewStyle } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  TouchableOpacityProps,
+  ViewStyle,
+  StyleProp,
+} from "react-native";
 
 export interface ThemedTileProps extends TouchableOpacityProps {
   lightColor?: string;
   darkColor?: string;
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
 }
 
 const ThemedTile: React.FC<ThemedTileProps> = ({

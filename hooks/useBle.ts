@@ -4,6 +4,7 @@ import * as ExpoDevice from "expo-device";
 
 export const useBLE = () => {
   const {
+    getBluetoothStatus,
     enableBluetooth,
     disableBluetooth,
     scanForPeripherals,
@@ -70,6 +71,7 @@ export const useBLE = () => {
   };
 
   return {
+    getBluetoothStatus,
     requestPermissions,
     enableBluetooth,
     disableBluetooth,

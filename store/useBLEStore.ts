@@ -1,9 +1,4 @@
-import {
-  BleManager,
-  Device,
-  BleError,
-  Characteristic,
-} from "react-native-ble-plx";
+import { BleManager, Device } from "react-native-ble-plx";
 import { BluetoothStateManager } from "react-native-bluetooth-state-manager";
 import { create } from "zustand";
 
@@ -20,6 +15,7 @@ type BLEState = {
 
 type BLEAction = {
   setBluetoothOn: (value: boolean) => void;
+  getBluetoothStatus: () => Promise<void>;
   setScanOn: (value: boolean) => void;
   setAllDevices: (device: Device) => void;
   clearAllDevices: () => void;
@@ -51,12 +47,21 @@ export const useBLEStore = create<BLEState & BLEAction>((set, get) => ({
   clearAllDevices: () => set({ allDevices: [] }),
   setConnectedDevice: (device) => set({ connectedDevice: device }),
 
-  enableBluetooth: async () => {
+  getBluetoothStatus: async () => {
     const state = await BluetoothStateManager.getState();
-    if (state !== "PoweredOn") {
-      await BluetoothStateManager.requestToEnable();
+    if (state === "PoweredOn") return set({ isBluetoothOn: true });
+    set({ isBluetoothOn: false });
+  },
+
+  enableBluetooth: async () => {
+    try {
+      if (!get().isBluetoothOn) {
+        await BluetoothStateManager.requestToEnable();
+      }
+      set({ isBluetoothOn: true });
+    } catch (error) {
+      console.log(error)
     }
-    set({ isBluetoothOn: true });
   },
 
   disableBluetooth: async () => {
@@ -100,8 +105,6 @@ export const useBLEStore = create<BLEState & BLEAction>((set, get) => ({
     try {
       console.log("🔄 Connecting to:", device.name);
 
-      manager.stopDeviceScan();
-
       const connectedDevice = await manager.connectToDevice(device.id, {
         timeout: 10000,
       });
@@ -109,6 +112,7 @@ export const useBLEStore = create<BLEState & BLEAction>((set, get) => ({
 
       console.log("✅ Connected:", connectedDevice.name);
       set({ connectedDevice: connectedDevice });
+      get().stopScanPeripherals();
     } catch (error: any) {
       console.log("❌ Connection error:", error?.message || error);
     }
