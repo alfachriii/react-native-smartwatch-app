@@ -1,18 +1,8 @@
-import { useBLEStore } from "@/store/useBLEStore";
 import { PermissionsAndroid, Platform } from "react-native";
 import * as ExpoDevice from "expo-device";
+import { BLEActions } from "@/store/useBLEStore";
 
 export const useBLE = () => {
-  const {
-    getBluetoothStatus,
-    enableBluetooth,
-    disableBluetooth,
-    scanForPeripherals,
-    stopScanPeripherals,
-    connectToDevice,
-    disconnectFromDevice,
-  } = useBLEStore();
-
   const requestAndroid31Permissions = async () => {
     const bluetoothScanPermission = await PermissionsAndroid.request(
       PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
@@ -47,6 +37,7 @@ export const useBLE = () => {
       fineLocationPermission === "granted"
     );
   };
+
   const requestPermissions = async () => {
     if (Platform.OS === "android") {
       if ((ExpoDevice.platformApiLevel ?? -1) < 31) {
@@ -70,14 +61,13 @@ export const useBLE = () => {
     }
   };
 
+  const { bluetooth, scan, connection, subscription } = BLEActions;
+
   return {
-    getBluetoothStatus,
     requestPermissions,
-    enableBluetooth,
-    disableBluetooth,
-    scanForPeripherals,
-    stopScanPeripherals,
-    connectToDevice,
-    disconnectFromDevice,
+    bluetooth,
+    scan,
+    connection,
+    subscription
   };
 };
