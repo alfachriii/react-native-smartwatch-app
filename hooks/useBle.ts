@@ -1,6 +1,6 @@
 import { PermissionsAndroid, Platform } from "react-native";
 import * as ExpoDevice from "expo-device";
-import { BLEActions } from "@/store/useBLEStore";
+import { BLEService } from "@/services/BLEService";
 
 export const useBLE = () => {
   const requestAndroid31Permissions = async () => {
@@ -61,13 +61,13 @@ export const useBLE = () => {
     }
   };
 
-  const { bluetooth, scan, connection, subscription } = BLEActions;
+  const { bluetooth, scan, connection, subscriptions } = BLEService;
 
   return {
     requestPermissions,
     bluetooth,
     scan,
     connection,
-    subscription
+    subscriptions
   };
 };

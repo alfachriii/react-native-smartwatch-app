@@ -1,10 +1,7 @@
+import { BLEService } from "@/services/BLEService";
 import { BleManager, Device, Subscription } from "react-native-ble-plx";
 import { BluetoothStateManager } from "react-native-bluetooth-state-manager";
 import { create } from "zustand";
-import { bluetoothActions } from "./bleActions/bluetoothActions";
-import { scanActions } from "./bleActions/scanActions";
-import { connectionActions } from "./bleActions/connectionActions";
-import { subscriptionActions } from "./bleActions/subscriptionActions";
 
 const HTTP_REQUEST_SERVICE_UUID = "8aaca133-6aee-4a06-92a8-5315073fa0f3";
 const HTTP_CHAR_NOTIFY = "1f05374b-18c8-4d5f-a670-f3d4a151ee5f";
@@ -53,12 +50,12 @@ export const useBLEStore = create<BLEStateTypes>((set, get) => ({
 }));
 
 // ====== Actions ======
-export const BLEActions = {
-  scan: scanActions,
-  bluetooth: bluetoothActions,
-  connection: connectionActions,
-  subscription: subscriptionActions,
-};
+// export const BLEActions = {
+//   scan: BLEService.scan,
+//   bluetooth: BLEService.bluetooth,
+//   connection: BLEService.connection,
+//   subscription: BLEService.subscriptions,
+// };
 
 // ====== Helper ======
 export const setBLEState = (

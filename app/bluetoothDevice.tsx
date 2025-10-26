@@ -68,6 +68,7 @@ const BluetoothDevice = () => {
   const isBluetoothOn = useBLEStore((s) => s.isBluetoothOn);
   const isScanOn = useBLEStore((s) => s.isScanOn);
   const allDevices = useBLEStore((s) => s.allDevices);
+  const connectedDevice = useBLEStore((s) => s.connectedDevice)
 
   const bluetoothToggle = async () => {
     const isPermissionsEnabled = await requestPermissions();
@@ -106,6 +107,7 @@ const BluetoothDevice = () => {
 
   useEffect(() => {
     bluetooth.getStatus();
+    console.log(connectedDevice)
   }, []);
 
   return (
