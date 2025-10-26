@@ -1,10 +1,11 @@
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import ThemedTile from "@/components/themedTile";
+import CustomAlert from "@/components/ui/CustomAlert";
 import { useBLE } from "@/hooks/useBle";
 import { useBLEStore } from "@/store/useBLEStore";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
-import React, { FC, useCallback, useEffect } from "react";
+import React, { FC, useCallback, useEffect, useState } from "react";
 import { FlatList, ListRenderItemInfo, StyleSheet, View } from "react-native";
 import { Device } from "react-native-ble-plx";
 import { ActivityIndicator, Switch } from "react-native-paper";
@@ -12,20 +13,20 @@ import { ActivityIndicator, Switch } from "react-native-paper";
 type DeviceListItemProps = {
   item: ListRenderItemInfo<Device>;
   connectToPeripheral: (device: Device) => void;
-  closeModal: () => void;
 };
+
+
 
 const DeviceListItem: FC<DeviceListItemProps> = ({
   item,
   connectToPeripheral,
-  closeModal,
 }) => {
   const connectedDevice = useBLEStore((s) => s.connectedDevice);
 
   const connectAndClose = useCallback(() => {
     console.log("try connect to device");
     connectToPeripheral(item.item);
-  }, [closeModal, connectToPeripheral, item.item]);
+  }, [connectToPeripheral, item.item]);
 
   return (
     <ThemedTile
@@ -65,10 +66,13 @@ const DeviceListItem: FC<DeviceListItemProps> = ({
 const BluetoothDevice = () => {
   const { bluetooth, scan, connection, requestPermissions } = useBLE();
 
+  const [isAlertVisib, setAlertVisib] = useState(false);
+  const [hasShownAlert, setHasShownAlert] = useState(false);
+
   const isBluetoothOn = useBLEStore((s) => s.isBluetoothOn);
   const isScanOn = useBLEStore((s) => s.isScanOn);
   const allDevices = useBLEStore((s) => s.allDevices);
-  const connectedDevice = useBLEStore((s) => s.connectedDevice)
+  const connectedDevice = useBLEStore((s) => s.connectedDevice);
 
   const bluetoothToggle = async () => {
     const isPermissionsEnabled = await requestPermissions();
@@ -90,28 +94,34 @@ const BluetoothDevice = () => {
     scan.stop();
   };
 
-  const closeModal = () => {};
-
   const renderDeviceListItem = useCallback(
     (item: ListRenderItemInfo<Device>) => {
       return (
-        <DeviceListItem
-          item={item}
-          connectToPeripheral={connection.connect}
-          closeModal={closeModal}
-        />
+        <DeviceListItem item={item} connectToPeripheral={connection.connect} />
       );
     },
     [connection.connect]
   );
 
   useEffect(() => {
+    if (connectedDevice && !hasShownAlert) {
+      setAlertVisib(true);
+      setHasShownAlert(true);
+    }
+  }, [connectedDevice, hasShownAlert]);
+
+  useEffect(() => {
     bluetooth.getStatus();
-    console.log(connectedDevice)
-  }, []);
+  }, [])
 
   return (
     <ThemedView style={styles.container}>
+      <CustomAlert
+        onClose={() => setAlertVisib(false)}
+        title="Request Pairing"
+        message="Please check your notification to pair"
+        visible={isAlertVisib}
+      />
       {/* Bluetooth Switch */}
       <View
         style={{
