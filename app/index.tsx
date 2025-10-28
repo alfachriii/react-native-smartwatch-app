@@ -8,10 +8,10 @@ import WatchIndicator from '@/components/watchInfo/watchIndicator';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Link } from 'expo-router';
-import { useState } from 'react';
 import { Image, ScrollView, StyleSheet, useColorScheme, View } from 'react-native';
-import useBLE from '../hooks/useBle'
 import { useBLEStore } from '@/store/useBLEStore';
+import { useEffect } from 'react';
+import { test } from '@/services/ApiService';
 
 const getColor = (colorScheme: any) => colorScheme === "dark" ? "white" : "black"
 
@@ -24,6 +24,10 @@ export default function Home() {
     if (!connectedDevice?.name) return "unknown"
     return connectedDevice.name
   }
+
+  useEffect(() => {
+    test()
+  }, [])
 
   return (
     <ThemedView style={styles.container}>

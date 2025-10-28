@@ -1,3 +1,4 @@
+import { handleBLECommand } from "@/handlers/commandBleHandler";
 import { getBLEState, setBLEState } from "@/store/useBLEStore";
 import base64 from "react-native-base64";
 import {
@@ -11,28 +12,6 @@ import { BluetoothStateManager } from "react-native-bluetooth-state-manager";
 
 const HTTP_REQUEST_SERVICE_UUID = "8aaca133-6aee-4a06-92a8-5315073fa0f3";
 const HTTP_CHAR_NOTIFY = "1f05374b-18c8-4d5f-a670-f3d4a151ee5f";
-
-const onGetHttpRequest = (
-  error: BleError | null,
-  characteristic: Characteristic | null
-) => {
-  if (error) {
-    console.warn("Error monitoring", characteristic, error);
-    return;
-  }
-
-  // const base64Value = characteristic?.value ?? "";
-  // const bytes = Buffer.from(base64Value, "base64");
-
-  // // misal 16-bit unsigned integer
-  // const int16 = bytes.readUInt16LE(0);
-  // console.log("Int16 value:", int16);
-  
-  const b64 = characteristic?.value ?? "";
-  const decodedBytes = base64.decode(b64);
-
-  console.log(decodedBytes)
-};
 
 type BLEActionTypes = {
   bluetooth: {
@@ -216,7 +195,7 @@ export const BLEService: BLEActionTypes = {
       const sub = device.monitorCharacteristicForService(
         HTTP_REQUEST_SERVICE_UUID,
         HTTP_CHAR_NOTIFY,
-        onGetHttpRequest
+        handleBLECommand
       );
 
       setBLEState((state) => ({

@@ -13,10 +13,7 @@
       "bundleIdentifier": "com.alfachri.testexpo",
       "infoPlist": {
         "NSBluetoothAlwaysUsageDescription": "App ini menggunakan BLE untuk koneksi perangkat.",
-        "UIBackgroundModes": [
-          "bluetooth-central",
-          "fetch"
-        ]
+        "UIBackgroundModes": ["bluetooth-central", "fetch"]
       }
     },
     "android": {
@@ -59,8 +56,8 @@
         }
       ],
       [
-      "react-native-permissions",
-      {
+        "react-native-permissions",
+        {
           "iosPermissions": [
             "BluetoothPeripheral",
             "LocationAlways",
